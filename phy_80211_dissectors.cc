@@ -1093,7 +1093,9 @@ int kis_80211_phy::packet_dot11_dissector(std::shared_ptr<kis_packet> in_pack) {
                 // Don't set a DLT on the data payload, since we don't know what it is
                 // but it's not 802.11.
                 datachunk = packetchain->new_packet_component<kis_datachunk>();
-                datachunk->set_data(chunk->substr(packinfo->header_offset,
+                // If we had a short read, leave datachunk empty
+                if (packinfo->header_offset < chunk->length())
+                    datachunk->set_data(chunk->substr(packinfo->header_offset,
                             chunk->length() - packinfo->header_offset));
                 in_pack->insert(pack_comp_datapayload, datachunk);
             }
